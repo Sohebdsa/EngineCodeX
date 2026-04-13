@@ -18,12 +18,12 @@ EngineCodeX is a modern, web-based code editor and DSA playground with integrate
 
 | Editor Interface |
 |------------------|
-| ![Editor](screenshots/s1.png) |
+| ![Editor](./screenshots/s1.png) |
 
 
 | AI Assistant |
 |--------------|
-| ![AI Panel](screenshots/s2.png) | <!-- Reuse s1 or add s3.png -->
+| ![AI Panel](./screenshots/s2.png) | <!-- Reuse s1 or add s3.png -->
 
 
 (Add your screenshots and demo GIF to `screenshots/` and root for best display)
