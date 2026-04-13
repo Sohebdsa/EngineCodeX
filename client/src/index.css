@@ -1,0 +1,304 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Theme Variables: Dark (Default) ──────────────────────────── */
+:root {
+  --color-bg: #0D1117;
+  --color-surface: #161B22;
+  --color-surface-2: #1C2128;
+  --color-surface-3: #21262D;
+  --color-border: #30363D;
+  --color-text: #E6EDF3;
+  --color-text-muted: #8B949E;
+  --color-accent: #58A6FF;
+  --color-accent-hover: #79C0FF;
+  --color-accent-glow: rgba(88, 166, 255, 0.15);
+  --color-success: #3FB950;
+  --color-error: #F85149;
+  --color-warning: #D29922;
+  --color-scrollbar: #484F58;
+  --color-scrollbar-hover: #6E7681;
+  --sidebar-width: 260px;
+  --navbar-height: 44px;
+}
+
+/* ─── Theme: Light ─────────────────────────────────────────────── */
+[data-theme="light"] {
+  --color-bg: #FFFFFF;
+  --color-surface: #F6F8FA;
+  --color-surface-2: #EAEEF2;
+  --color-surface-3: #D0D7DE;
+  --color-border: #D0D7DE;
+  --color-text: #1F2328;
+  --color-text-muted: #656D76;
+  --color-accent: #0969DA;
+  --color-accent-hover: #0550AE;
+  --color-accent-glow: rgba(9, 105, 218, 0.1);
+  --color-success: #1A7F37;
+  --color-error: #CF222E;
+  --color-warning: #9A6700;
+  --color-scrollbar: #AFB8C1;
+  --color-scrollbar-hover: #8C959F;
+}
+
+/* ─── Theme: Neon ──────────────────────────────────────────────── */
+[data-theme="neon"] {
+  --color-bg: #020208;
+  --color-surface: #0A0A14;
+  --color-surface-2: #10101E;
+  --color-surface-3: #1A1A2E;
+  --color-border: #1A1A30;
+  --color-text: #E0E0FF;
+  --color-text-muted: #6B6B99;
+  --color-accent: #00F0FF;
+  --color-accent-hover: #00D4E0;
+  --color-accent-glow: rgba(0, 240, 255, 0.2);
+  --color-success: #00FF88;
+  --color-error: #FF0055;
+  --color-warning: #FFD600;
+  --color-scrollbar: #2A2A44;
+  --color-scrollbar-hover: #3A3A55;
+}
+
+/* ─── Theme: Dracula ───────────────────────────────────────────── */
+[data-theme="dracula"] {
+  --color-bg: #282A36;
+  --color-surface: #343746;
+  --color-surface-2: #3E4254;
+  --color-surface-3: #484C64;
+  --color-border: #44475A;
+  --color-text: #F8F8F2;
+  --color-text-muted: #6272A4;
+  --color-accent: #BD93F9;
+  --color-accent-hover: #CFA9FF;
+  --color-accent-glow: rgba(189, 147, 249, 0.2);
+  --color-success: #50FA7B;
+  --color-error: #FF5555;
+  --color-warning: #F1FA8C;
+  --color-scrollbar: #44475A;
+  --color-scrollbar-hover: #6272A4;
+}
+
+/* ─── Global Reset & Base ──────────────────────────────────────── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color 0.25s ease, color 0.25s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Global Transitions ───────────────────────────────────────── */
+.theme-transition,
+.theme-transition * {
+  transition: background-color 0.25s ease, 
+              color 0.25s ease, 
+              border-color 0.25s ease,
+              box-shadow 0.25s ease !important;
+}
+
+/* ─── Custom Scrollbar ─────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-scrollbar);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-scrollbar-hover);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ─── Selection ────────────────────────────────────────────────── */
+::selection {
+  background: var(--color-accent-glow);
+  color: var(--color-accent);
+}
+
+/* ─── Resize Handle ────────────────────────────────────────────── */
+.resize-handle-h {
+  width: 4px;
+  cursor: col-resize;
+  background: transparent;
+  transition: background-color 0.2s ease;
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.resize-handle-h:hover,
+.resize-handle-h.active {
+  background: var(--color-accent);
+}
+
+.resize-handle-h::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -3px;
+  right: -3px;
+  bottom: 0;
+}
+
+.resize-handle-v {
+  height: 4px;
+  cursor: row-resize;
+  background: transparent;
+  transition: background-color 0.2s ease;
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.resize-handle-v:hover,
+.resize-handle-v.active {
+  background: var(--color-accent);
+}
+
+.resize-handle-v::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -3px;
+  bottom: -3px;
+  right: 0;
+}
+
+/* ─── Neon Glow Effects ────────────────────────────────────────── */
+[data-theme="neon"] .neon-glow {
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.3), 0 0 16px rgba(0, 240, 255, 0.1);
+}
+
+[data-theme="neon"] .neon-text {
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+}
+
+[data-theme="neon"] .neon-border {
+  border-color: rgba(0, 240, 255, 0.3);
+  box-shadow: inset 0 0 8px rgba(0, 240, 255, 0.05);
+}
+
+/* ─── Context Menu ─────────────────────────────────────────────── */
+.context-menu {
+  position: fixed;
+  z-index: 1000;
+  min-width: 180px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  animation: fadeIn 0.15s ease-out;
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color 0.1s ease;
+}
+
+.context-menu-item:hover {
+  background: var(--color-surface-2);
+}
+
+.context-menu-item.danger {
+  color: var(--color-error);
+}
+
+.context-menu-item.danger:hover {
+  background: rgba(248, 81, 73, 0.1);
+}
+
+.context-menu-separator {
+  height: 1px;
+  background: var(--color-border);
+  margin: 4px 8px;
+}
+
+/* ─── File Search Modal ────────────────────────────────────────── */
+.file-search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  padding-top: 15vh;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.file-search-modal {
+  width: 520px;
+  max-height: 400px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 16px 64px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* ─── Toast Animations ─────────────────────────────────────────── */
+@keyframes toastIn {
+  0% { transform: translateX(100%) scale(0.9); opacity: 0; }
+  100% { transform: translateX(0) scale(1); opacity: 1; }
+}
+
+@keyframes toastOut {
+  0% { transform: translateX(0) scale(1); opacity: 1; }
+  100% { transform: translateX(100%) scale(0.9); opacity: 0; }
+}
+
+.toast-enter {
+  animation: toastIn 0.3s ease-out forwards;
+}
+
+.toast-exit {
+  animation: toastOut 0.3s ease-in forwards;
+}
+
+/* ─── Utility ──────────────────────────────────────────────────── */
+.truncate-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+}
