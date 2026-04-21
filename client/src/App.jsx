@@ -8,9 +8,11 @@ import CodeEditor from './components/Editor/CodeEditor';
 import Console from './components/Console/Console';
 import Toast from './components/UI/Toast';
 import AIPanel from './components/AI/AIPanel';
+import QuizPanel from './components/Quiz/QuizPanel';
 import useKeyboardShortcuts from './hooks/useKeyboardShortcuts';
 import useEditorStore from './stores/useEditorStore';
 import useAIStore from './stores/useAIStore';
+import useQuizStore from './stores/useQuizStore';
 
 export default function App() {
   useKeyboardShortcuts();
@@ -18,6 +20,7 @@ export default function App() {
   const restoreSession = useEditorStore((s) => s.restoreSession);
   const hasUnsavedChanges = useEditorStore((s) => s.hasUnsavedChanges);
   const aiIsOpen = useAIStore((s) => s.isOpen);
+  const quizIsOpen = useQuizStore((s) => s.isOpen);
 
   // ─── Sidebar resize ──────────────────────────────────────────
   const [sidebarWidth, setSidebarWidth] = useState(260);
@@ -167,6 +170,9 @@ export default function App() {
 
         {/* AI Panel */}
         {aiIsOpen && <AIPanel />}
+
+        {/* Quiz Panel */}
+        {quizIsOpen && <QuizPanel />}
       </div>
 
       {/* Overlays */}

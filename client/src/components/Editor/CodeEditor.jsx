@@ -4,29 +4,25 @@ import useEditorStore from '../../stores/useEditorStore';
 import useThemeStore from '../../stores/useThemeStore';
 import useAutoSave from '../../hooks/useAutoSave';
 import { themes, defineMonacoThemes } from '../../themes/themes';
+import QuizMain from '../Quiz/QuizMain';
+import { QUIZ_TAB_ID } from '../../stores/useQuizStore';
 
 export default function CodeEditor() {
-  const activeTab = useEditorStore((s) => s.activeTab);
-  const openTabs = useEditorStore((s) => s.openTabs);
+  // ── ALL hooks must be called unconditionally at the top ──────────
+  const activeTab    = useEditorStore((s) => s.activeTab);
+  const openTabs     = useEditorStore((s) => s.openTabs);
   const updateContent = useEditorStore((s) => s.updateContent);
-  const theme = useThemeStore((s) => s.theme);
-  const editorRef = useRef(null);
-  const monacoRef = useRef(null);
-  const autoSave = useAutoSave();
-
-  const tab = openTabs.find((t) => t.path === activeTab);
+  const theme        = useThemeStore((s) => s.theme);
+  const editorRef    = useRef(null);
+  const monacoRef    = useRef(null);
+  const autoSave     = useAutoSave();
 
   const handleMount = useCallback((editor, monaco) => {
     editorRef.current = editor;
     monacoRef.current = monaco;
-
-    // Define custom themes
     defineMonacoThemes(monaco);
-
-    // Set current theme
     const monacoTheme = themes[theme]?.monacoTheme || 'vs-dark';
     monaco.editor.setTheme(monacoTheme);
-
     editor.focus();
   }, [theme]);
 
@@ -37,11 +33,20 @@ export default function CodeEditor() {
     }
   }, [activeTab, updateContent, autoSave]);
 
-  // Sync Monaco theme when app theme changes
+  // ── Sync Monaco theme when app theme changes ─────────────────────
   if (monacoRef.current) {
     const monacoTheme = themes[theme]?.monacoTheme || 'vs-dark';
     monacoRef.current.editor.setTheme(monacoTheme);
   }
+
+  // ── Conditional renders AFTER all hooks ──────────────────────────
+
+  // Quiz tab → render the quiz UI instead of Monaco
+  if (activeTab === QUIZ_TAB_ID) {
+    return <QuizMain />;
+  }
+
+  const tab = openTabs.find((t) => t.path === activeTab);
 
   if (!tab) {
     return (
