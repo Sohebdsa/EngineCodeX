@@ -31,6 +31,7 @@ export default function QuizPanel() {
   const getSessionStats = useQuizStore(s => s.getSessionStats);
   const retryWeak    = useQuizStore(s => s.retryWeak);
   const resetSession = useQuizStore(s => s.resetSession);
+  const generateQuestions = useQuizStore(s => s.generateQuestions);
 
   const stats = getSessionStats();
 
@@ -134,18 +135,23 @@ export default function QuizPanel() {
 
           {/* Actions */}
           {sessionComplete && (
-            <div className="qp-actions">
-              <button className="qp-retry-btn" onClick={retryWeak}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/>
+            <div className="qp-actions flex-col gap-2">
+              <div className="flex gap-2">
+                <button className="qp-retry-btn flex-1" onClick={retryWeak}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/>
+                  </svg>
+                  Retry Weak
+                </button>
+                <button className="qp-retry-btn flex-1" onClick={resetSession}>
+                  New Topic
+                </button>
+              </div>
+              <button className="qp-new-btn w-full justify-center" onClick={generateQuestions}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2" />
                 </svg>
-                Retry Weak
-              </button>
-              <button className="qp-new-btn" onClick={resetSession}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                </svg>
-                New Quiz
+                More Questions
               </button>
             </div>
           )}

@@ -33,7 +33,7 @@ async function callLLM({ apiKey, model, provider, baseUrl, systemPrompt, userMes
     return data?.choices?.[0]?.message?.content || '';
   } else {
     // Default Gemini
-    const apiVersion = model.startsWith('gemma') ? 'v1alpha' : 'v1beta';
+    const apiVersion = (model.includes('2.0') || model.includes('2.5') || model.startsWith('gemma')) ? 'v1alpha' : 'v1beta';
     const url = `https://generativelanguage.googleapis.com/${apiVersion}/models/${model}:generateContent?key=${apiKey}`;
     const response = await fetch(url, {
       method: 'POST',

@@ -265,7 +265,7 @@ function ResultBlock({ result }) {
 }
 
 // ─── Session complete screen ─────────────────────────────────────────────────
-function SessionComplete({ stats, questions, results, onRetry, onNew }) {
+function SessionComplete({ stats, questions, results, onRetry, onNew, onMore }) {
   const grade =
     stats.avgScore >= 90 ? { label: 'Excellent!', emoji: '🏆', cls: 'text-emerald-400' }
     : stats.avgScore >= 70 ? { label: 'Great job!', emoji: '⭐', cls: 'text-blue-400' }
@@ -322,7 +322,7 @@ function SessionComplete({ stats, questions, results, onRetry, onNew }) {
           })}
         </div>
 
-        <div className="flex gap-3 mt-6">
+        <div className="flex gap-3 mt-6 justify-center">
           {weakCount > 0 && (
             <button onClick={onRetry} className="qm-retry-btn">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -331,11 +331,14 @@ function SessionComplete({ stats, questions, results, onRetry, onNew }) {
               Retry {weakCount} weak
             </button>
           )}
-          <button onClick={onNew} className="qm-new-btn">
+          <button onClick={onMore} className="qm-new-btn">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
             </svg>
-            New Quiz
+            More Questions
+          </button>
+          <button onClick={onNew} className="qm-retry-btn">
+            New Topic
           </button>
         </div>
       </div>
@@ -361,6 +364,7 @@ export default function QuizMain() {
   const goToQuestion = useQuizStore(s => s.goToQuestion);
   const retryWeak    = useQuizStore(s => s.retryWeak);
   const resetSession = useQuizStore(s => s.resetSession);
+  const generateQuestions = useQuizStore(s => s.generateQuestions);
   const getSessionStats = useQuizStore(s => s.getSessionStats);
 
   const [showHint, setShowHint] = useState(false);
@@ -379,6 +383,7 @@ export default function QuizMain() {
         results={results}
         onRetry={retryWeak}
         onNew={resetSession}
+        onMore={generateQuestions}
       />
     );
   }

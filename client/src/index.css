@@ -303,6 +303,14 @@ body {
   -webkit-user-select: none;
 }
 
+.drag-region {
+  -webkit-app-region: drag;
+}
+
+.no-drag {
+  -webkit-app-region: no-drag;
+}
+
 /* ─────────────────────────────────────────────────────────────────── */
 /* Quiz Panel                                                           */
 /* ─────────────────────────────────────────────────────────────────── */

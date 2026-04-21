@@ -31,11 +31,13 @@ export default function Navbar() {
   const setAiModel = useAIStore((s) => s.setModel);
 
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [activeSettingsTab, setActiveSettingsTab] = useState('ai'); // 'ai' | 'shortcuts'
   const [modelInput, setModelInput] = useState('');
   const [localKeys, setLocalKeys] = useState({});
   const [localProviders, setLocalProviders] = useState({});
   const [localUrls, setLocalUrls] = useState({});
   const [showKey, setShowKey] = useState(false);
+  const [shortcuts, setShortcuts] = useState({});
   const modalRef = useRef(null);
 
   // Initialize input when modal opens
@@ -57,6 +59,7 @@ export default function Navbar() {
       setLocalProviders(initProviders);
       setLocalUrls(initUrls);
       setShowKey(false);
+      setShortcuts(JSON.parse(localStorage.getItem('dsa-shortcuts') || '{"save":"s","run":"enter","search":"p","close":"w","format":"f"}'));
     }
   }, [showApiKeyModal]);
 
@@ -119,8 +122,14 @@ export default function Navbar() {
     }
   };
 
+  const handleSaveShortcuts = () => {
+    localStorage.setItem('dsa-shortcuts', JSON.stringify(shortcuts));
+    addToast('Shortcuts saved', 'success');
+    setShowApiKeyModal(false);
+  };
+
   return (
-    <nav className="h-11 flex items-center justify-between px-4 bg-surface border-b border-border no-select shrink-0">
+    <nav className="drag-region h-11 flex items-center justify-between px-4 bg-surface border-b border-border no-select shrink-0">
       {/* Left: Logo */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
@@ -140,11 +149,9 @@ export default function Navbar() {
                 {/* Crankshaft Pulley Hub */}
                 <circle cx="12" cy="18" r="2.5" fill="currentColor" fillOpacity="0.8" />
               </g>
-
-              {/* The Big Bold X overlay */}
-              {/* <path d="M7 6l10 12m0-12L7 18" stroke="#EF4444" strokeWidth="3" strokeLinecap="round" className="drop-shadow-sm" /> */}
             </svg>
           </div>
+
 
           <span className="font-bold text-[15px] text-slate-800 dark:text-slate-200 tracking-tight">
             EngineX
@@ -153,7 +160,7 @@ export default function Navbar() {
       </div>
 
       {/* Center: Actions */}
-      <div className="flex items-center gap-2">
+      <div className="no-drag flex items-center gap-2">
         {/* Search */}
         <button
           onClick={() => setShowFileSearch(true)}
@@ -209,7 +216,7 @@ export default function Navbar() {
       </div>
 
       {/* Right: Settings + AI + Theme */}
-      <div className="flex items-center gap-2">
+      <div className="no-drag flex items-center gap-2">
         {/* AI Config Settings */}
         <div className="relative">
           <button
@@ -239,18 +246,20 @@ export default function Navbar() {
               className="absolute right-0 top-full mt-2 w-80 bg-surface border border-border rounded-xl shadow-2xl z-50 overflow-hidden"
               style={{ animation: 'fadeIn 0.15s ease-out' }}
             >
-              <div className="px-4 py-3 border-b border-border bg-surface-2/50">
+              <div className="px-4 py-3 border-b border-border bg-surface-2/50 flex justify-between items-center">
                 <h3 className="text-sm font-semibold text-text flex items-center gap-2">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" />
                   </svg>
-                  AI Configuration
+                  Settings
                 </h3>
-                <p className="text-[11px] text-text-muted mt-1">
-                  Configure models and fallback API keys.
-                </p>
+                <div className="flex gap-2">
+                  <button onClick={() => setActiveSettingsTab('ai')} className={`text-xs px-2 py-1 rounded ${activeSettingsTab === 'ai' ? 'bg-accent/20 text-accent font-medium' : 'text-text-muted hover:text-text'}`}>AI</button>
+                  <button onClick={() => setActiveSettingsTab('shortcuts')} className={`text-xs px-2 py-1 rounded ${activeSettingsTab === 'shortcuts' ? 'bg-accent/20 text-accent font-medium' : 'text-text-muted hover:text-text'}`}>Shortcuts</button>
+                </div>
               </div>
 
+              {activeSettingsTab === 'ai' ? (
               <div className="p-4 space-y-3">
                 <div className="relative space-y-3">
                   <div>
@@ -400,6 +409,38 @@ export default function Navbar() {
                   )}
                 </div>
               </div>
+              ) : (
+                <div className="p-4 space-y-3">
+                  <div className="space-y-2">
+                    {[
+                      { id: 'save', label: 'Save File (Ctrl + ?)' },
+                      { id: 'run', label: 'Run Code (Ctrl + ?)' },
+                      { id: 'search', label: 'Search Files (Ctrl + ?)' },
+                      { id: 'close', label: 'Close Tab (Ctrl + ?)' },
+                      { id: 'format', label: 'Format Code (Ctrl + Shift + ?)' }
+                    ].map(item => (
+                      <div key={item.id} className="flex justify-between items-center gap-2">
+                        <label className="text-xs text-text-muted font-medium">{item.label}</label>
+                        <input
+                          type="text"
+                          maxLength={5}
+                          value={shortcuts[item.id] || ''}
+                          onChange={(e) => setShortcuts({ ...shortcuts, [item.id]: e.target.value.toLowerCase() })}
+                          className="w-16 px-2 py-1 rounded bg-bg border border-border text-center font-mono text-xs outline-none focus:border-accent"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex mt-4">
+                    <button
+                      onClick={handleSaveShortcuts}
+                      className="flex-1 px-3 py-1.5 rounded-lg bg-accent/90 text-white text-xs font-medium hover:bg-accent transition-colors"
+                    >
+                      Save Shortcuts
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import useEditorStore from '../../stores/useEditorStore';
 import useThemeStore from '../../stores/useThemeStore';
@@ -38,6 +38,17 @@ export default function CodeEditor() {
     const monacoTheme = themes[theme]?.monacoTheme || 'vs-dark';
     monacoRef.current.editor.setTheme(monacoTheme);
   }
+
+  // ── Listen for format command from keyboard shortcuts ────────────────
+  useEffect(() => {
+    const handleFormat = () => {
+      if (editorRef.current) {
+        editorRef.current.getAction('editor.action.formatDocument').run();
+      }
+    };
+    window.addEventListener('editor:format', handleFormat);
+    return () => window.removeEventListener('editor:format', handleFormat);
+  }, []);
 
   // ── Conditional renders AFTER all hooks ──────────────────────────
 
