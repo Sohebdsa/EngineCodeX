@@ -11,6 +11,7 @@ export default function Console() {
   const input = useConsoleStore((s) => s.input);
   const setInput = useConsoleStore((s) => s.setInput);
   const runCode = useConsoleStore((s) => s.runCode);
+  const stopCode = useConsoleStore((s) => s.stopCode);
   const clearConsole = useConsoleStore((s) => s.clearConsole);
   const getActiveTabData = useEditorStore((s) => s.getActiveTabData);
   const addToast = useToastStore((s) => s.addToast);
@@ -70,31 +71,29 @@ export default function Console() {
               <path d="M3 6h18M8 6V4h8v2M5 6v14a2 2 0 002 2h10a2 2 0 002-2V6"/>
             </svg>
           </button>
-          <button
-            onClick={handleRun}
-            disabled={isRunning}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium transition-all
-              ${isRunning
-                ? 'bg-success/20 text-success cursor-not-allowed'
-                : 'bg-success/90 text-white hover:bg-success'
-              }`}
-          >
-            {isRunning ? (
-              <>
-                <svg width="10" height="10" viewBox="0 0 24 24" className="animate-spin-slow">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" fill="none" strokeDasharray="31.4" strokeLinecap="round"/>
-                </svg>
-                Running
-              </>
-            ) : (
-              <>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
-                  <polygon points="5,3 19,12 5,21"/>
-                </svg>
-                Run
-              </>
-            )}
-          </button>
+          {isRunning ? (
+            <button
+              onClick={stopCode}
+              className="flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium transition-all bg-error/90 text-white hover:bg-error"
+              title="Stop Execution"
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="6" width="12" height="12" rx="2" ry="2" />
+              </svg>
+              Stop
+            </button>
+          ) : (
+            <button
+              onClick={handleRun}
+              className="flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium transition-all bg-success/90 text-white hover:bg-success"
+              title="Run (Ctrl+Enter)"
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5,3 19,12 5,21"/>
+              </svg>
+              Run
+            </button>
+          )}
         </div>
       </div>
 

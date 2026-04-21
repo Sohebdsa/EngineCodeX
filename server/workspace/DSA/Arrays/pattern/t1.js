@@ -1,14 +1,17 @@
-let row = ''
 let n = 5;
-let row2 = ''
-for (let i = n; i >= 0; i--) {
-  for (let j = 0; j < i; j++) {
-    row += ' '
+
+for (let i = 0; i < n; i++) {
+  let row = "";
+
+  // spaces
+  for (let j = 0; j < n - i - 1; j++) {
+    row += " ";
   }
-  for (let j = 0; j < 5; j++) [
-    row += "*"
-  ]
-  console.log(row)
-  row = ''
-  row2 = ''
+
+  // stars
+  for (let j = 0; j < 2 * i + 1; j++) {
+    row += "*";
+  }
+
+  console.log(row);
 }

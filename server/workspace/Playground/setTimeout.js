@@ -1,5 +1,5 @@
 for(let i= 0;i<3;i++){
-  setTimeout(()=>{
+  setInterval(()=>{
     console.log(i);
-  },0)
+  },2000)
 }

@@ -8,6 +8,7 @@ import useQuizStore from '../../stores/useQuizStore';
 
 export default function Navbar() {
   const runCode = useConsoleStore((s) => s.runCode);
+  const stopCode = useConsoleStore((s) => s.stopCode);
   const isRunning = useConsoleStore((s) => s.isRunning);
   const getActiveTabData = useEditorStore((s) => s.getActiveTabData);
   const setShowFileSearch = useEditorStore((s) => s.setShowFileSearch);
@@ -188,31 +189,31 @@ export default function Navbar() {
           <span className="hidden sm:inline">Save</span>
         </button>
 
-        {/* Run */}
-        <button
-          onClick={handleRun}
-          disabled={isRunning}
-          className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium transition-all
-            ${isRunning
-              ? 'bg-success/20 text-success cursor-not-allowed'
-              : 'bg-success/90 text-white hover:bg-success shadow-sm shadow-success/20 hover:shadow-success/40'
-            }`}
-          title="Run (Ctrl+Enter)"
-        >
-          {isRunning ? (
-            <svg width="12" height="12" viewBox="0 0 24 24" className="animate-spin-slow">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" fill="none" strokeDasharray="31.4" strokeLinecap="round" />
+        {/* Run / Stop */}
+        {isRunning ? (
+          <button
+            onClick={stopCode}
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium transition-all bg-error/90 text-white hover:bg-error shadow-sm shadow-error/20 hover:shadow-error/40"
+            title="Stop Execution"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="6" y="6" width="12" height="12" rx="2" ry="2" />
             </svg>
-          ) : (
+            <span>Stop</span>
+          </button>
+        ) : (
+          <button
+            onClick={handleRun}
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium transition-all bg-success/90 text-white hover:bg-success shadow-sm shadow-success/20 hover:shadow-success/40"
+            title="Run (Ctrl+Enter)"
+          >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
               <polygon points="5,3 19,12 5,21" />
             </svg>
-          )}
-          <span>{isRunning ? 'Running...' : 'Run'}</span>
-          {!isRunning && (
+            <span>Run</span>
             <kbd className="text-[10px] px-1 py-0.5 rounded bg-white/20 font-mono ml-1">⌃↵</kbd>
-          )}
-        </button>
+          </button>
+        )}
       </div>
 
       {/* Right: Settings + AI + Theme */}
