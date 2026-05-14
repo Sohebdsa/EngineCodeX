@@ -27,7 +27,30 @@ if (existsSync(envPath)) {
 const app = express();
 const PORT = 3001;
 
-app.use(cors());
+// ── CORS Configuration ──
+const allowedOrigins = [
+  'http://enginecodex.s3-website.ap-south-1.amazonaws.com',
+  'http://localhost:5173',   // local dev
+  'http://localhost:3000',   // local dev alt
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // allow requests with no origin (curl, Postman, server-to-server)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  credentials: true,
+}));
+
+// Explicitly handle preflight for every route
+app.options('*', cors());
+
 app.use(express.json({ limit: '5mb' }));
 
 // Mount routes
