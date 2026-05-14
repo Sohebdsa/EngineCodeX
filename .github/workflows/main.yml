@@ -41,7 +41,7 @@ jobs:
 
       # Step 7: Deploy client build to S3
       - name: Deploy to S3
-        run: aws s3 sync client/dist s3://your-s3-bucket-name --delete
+        run: aws s3 sync client/dist s3://enginecodex --delete
 
       # Step 8: Start server (optional for CI/CD)
       # If you want to run the server as part of the workflow (for testing),
