@@ -140,7 +140,7 @@ export default function Console() {
               </div>
             ) : !hasOutput ? (
               <div className="text-text-muted/50 text-xs">
-                Run your code to see output here (Ctrl+Enter)
+                Run your code to see output here -- (Ctrl+Enter)
               </div>
             ) : (
               <>
