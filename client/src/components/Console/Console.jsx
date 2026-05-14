@@ -11,9 +11,11 @@ export default function Console() {
   const input = useConsoleStore((s) => s.input);
   const setInput = useConsoleStore((s) => s.setInput);
   const runCode = useConsoleStore((s) => s.runCode);
+  const stopCode = useConsoleStore((s) => s.stopCode);
   const clearConsole = useConsoleStore((s) => s.clearConsole);
   const getActiveTabData = useEditorStore((s) => s.getActiveTabData);
   const addToast = useToastStore((s) => s.addToast);
+  const activeWorker = useConsoleStore((s) => s.activeWorker);
 
   const [activeSection, setActiveSection] = useState('output'); // 'output' | 'input'
   const outputRef = useRef(null);
@@ -32,9 +34,23 @@ export default function Console() {
   };
 
   const hasOutput = output || error;
+  const canStop = isRunning || activeWorker !== null;
+
+  const handleKeyDown = (e) => {
+    if (e.ctrlKey && e.key.toLowerCase() === 'c') {
+      if (!window.getSelection().toString()) {
+        e.preventDefault();
+        stopCode();
+      }
+    }
+  };
 
   return (
-    <div className="flex flex-col h-full bg-surface overflow-hidden">
+    <div 
+      className="flex flex-col h-full bg-surface overflow-hidden outline-none" 
+      tabIndex={-1} 
+      onKeyDown={handleKeyDown}
+    >
       {/* Console Header */}
       <div className="flex items-center justify-between px-3 py-1.5 border-b border-border shrink-0 no-select">
         <div className="flex items-center gap-1">
@@ -71,6 +87,19 @@ export default function Console() {
             </svg>
           </button>
           <button
+            onClick={stopCode}
+            disabled={!canStop}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium transition-all ${
+              canStop ? 'bg-error/90 text-white hover:bg-error' : 'bg-surface-2 text-text-muted cursor-not-allowed opacity-50'
+            }`}
+            title="Stop Execution (Ctrl+C)"
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="6" y="6" width="12" height="12" rx="2" ry="2" />
+            </svg>
+            Stop
+          </button>
+          <button
             onClick={handleRun}
             disabled={isRunning}
             className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium transition-all
@@ -101,7 +130,7 @@ export default function Console() {
       {/* Console Body */}
       <div className="flex-1 overflow-hidden">
         {activeSection === 'output' ? (
-          <div ref={outputRef} className="h-full overflow-y-auto p-3 font-mono text-[13px] leading-relaxed">
+          <div ref={outputRef} tabIndex={0} className="h-full overflow-y-auto p-3 font-mono text-[13px] leading-relaxed outline-none focus:bg-surface-2/30 transition-colors">
             {isRunning ? (
               <div className="flex items-center gap-2 text-text-muted">
                 <svg width="14" height="14" viewBox="0 0 24 24" className="animate-spin-slow">
