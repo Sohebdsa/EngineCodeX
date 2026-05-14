@@ -1,0 +1,49 @@
+name: EngineCodeX Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # Step 3: Install server dependencies
+      - name: Install server dependencies
+        run: npm install --prefix server
+
+      # Step 4: Install client dependencies
+      - name: Install client dependencies
+        run: npm install --prefix client
+
+      # Step 5: Build client
+      - name: Build client
+        run: npm run build --prefix client
+
+      # Step 6: Configure AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1   # change if your bucket is in another region
+
+      # Step 7: Deploy client build to S3
+      - name: Deploy to S3
+        run: aws s3 sync client/dist s3://enginecodex --delete
+
+      # Step 8: Start server (optional for CI/CD)
+      # If you want to run the server as part of the workflow (for testing),
+      # uncomment this step. For production, you'd usually deploy server separately.
+

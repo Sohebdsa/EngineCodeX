@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { filesRouter, seedWorkspace } from './routes/files.js';
 import { aiRouter } from './routes/ai.js';
+import { quizRouter } from './routes/quiz.js';
 
 // Load .env file manually (no dotenv dependency needed in Node 20+)
 import { readFileSync, existsSync } from 'fs';
@@ -32,6 +33,7 @@ app.use(express.json({ limit: '5mb' }));
 // Mount routes
 app.use('/api/files', filesRouter);
 app.use('/api/ai', aiRouter);
+app.use('/api/quiz', quizRouter);
 
 // Health check
 app.get('/api/health', (req, res) => {

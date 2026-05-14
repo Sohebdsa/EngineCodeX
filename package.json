@@ -1,0 +1,14 @@
+{
+  "name": "enginecodex",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n \"server,client\" -c \"cyan,magenta\" \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "install:all": "cd client && npm install && cd ../server && npm install",
+    "build": "npm run build --prefix client",
+    "start": "concurrently -n \"server,client\" -c \"cyan,magenta\" \"npm start --prefix server\" \"npm run preview --prefix client\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
