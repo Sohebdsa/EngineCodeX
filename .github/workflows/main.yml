@@ -46,5 +46,5 @@ jobs:
       # Step 8: Start server (optional for CI/CD)
       # If you want to run the server as part of the workflow (for testing),
       # uncomment this step. For production, you'd usually deploy server separately.
-      - name: Start server
-        run: npm start --prefix server
+      # - name: Start server
+      #   run: npm start --prefix server
