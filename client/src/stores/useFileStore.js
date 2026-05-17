@@ -6,8 +6,36 @@ const useFileStore = create((set, get) => ({
   loading: false,
   expandedFolders: JSON.parse(localStorage.getItem('dsa-expanded-folders') || '["DSA"]'),
   selectedPath: '', // Track the currently selected node path
+  clipboard: null,  // { path, name, operation: 'cut' | 'copy' }
 
   setSelectedPath: (path) => set({ selectedPath: path }),
+
+  setClipboard: (path, name, operation) => set({ clipboard: { path, name, operation } }),
+  clearClipboard: () => set({ clipboard: null }),
+
+  pasteNode: async (destFolderPath) => {
+    const { clipboard } = get();
+    if (!clipboard) return { success: false, error: 'Nothing in clipboard' };
+
+    const fileName = clipboard.path.split('/').pop();
+    const destPath = destFolderPath ? `${destFolderPath}/${fileName}` : fileName;
+
+    try {
+      const result = await api.post('/api/files/move', {
+        sourcePath: clipboard.path,
+        destPath,
+        operation: clipboard.operation === 'cut' ? 'move' : 'copy',
+      });
+      // Clear clipboard after a cut (move) operation
+      if (clipboard.operation === 'cut') {
+        set({ clipboard: null });
+      }
+      await get().fetchTree();
+      return { success: true, newPath: result.newPath };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  },
 
   fetchTree: async () => {
     set({ loading: true });

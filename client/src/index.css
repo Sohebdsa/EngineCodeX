@@ -246,6 +246,19 @@ body {
   margin: 4px 8px;
 }
 
+.context-menu-shortcut {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+.context-menu-item.disabled {
+  opacity: 0.35;
+  cursor: default;
+  pointer-events: none;
+}
+
 /* ─── File Search Modal ────────────────────────────────────────── */
 .file-search-overlay {
   position: fixed;

@@ -171,6 +171,82 @@ filesRouter.delete('/delete', (req, res) => {
   }
 });
 
+// ─── POST /move (copy or move) ──────────────────────────────────
+filesRouter.post('/move', (req, res) => {
+  try {
+    const { sourcePath, destPath, operation } = req.body;
+    if (!sourcePath || !destPath || !operation) {
+      return res.status(400).json({ error: 'sourcePath, destPath, and operation are required' });
+    }
+    if (!['copy', 'move'].includes(operation)) {
+      return res.status(400).json({ error: 'operation must be "copy" or "move"' });
+    }
+
+    const absSrc = path.join(WORKSPACE_ROOT, sourcePath);
+    const absDest = path.join(WORKSPACE_ROOT, destPath);
+
+    if (!absSrc.startsWith(WORKSPACE_ROOT) || !absDest.startsWith(WORKSPACE_ROOT)) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    if (!fs.existsSync(absSrc)) {
+      return res.status(404).json({ error: 'Source not found' });
+    }
+
+    // Prevent moving/copying a folder into itself
+    if (absDest.startsWith(absSrc + path.sep)) {
+      return res.status(400).json({ error: 'Cannot move/copy a folder into itself' });
+    }
+
+    // If destination already exists, generate a unique name
+    let finalDest = absDest;
+    if (fs.existsSync(finalDest)) {
+      const dir = path.dirname(finalDest);
+      const ext = path.extname(finalDest);
+      const base = path.basename(finalDest, ext);
+      let counter = 1;
+      while (fs.existsSync(finalDest)) {
+        finalDest = path.join(dir, `${base} (${counter})${ext}`);
+        counter++;
+      }
+    }
+
+    // Ensure parent directory exists
+    fs.mkdirSync(path.dirname(finalDest), { recursive: true });
+
+    if (operation === 'move') {
+      fs.renameSync(absSrc, finalDest);
+    } else {
+      // Copy
+      const stat = fs.statSync(absSrc);
+      if (stat.isDirectory()) {
+        copyDirRecursive(absSrc, finalDest);
+      } else {
+        fs.copyFileSync(absSrc, finalDest);
+      }
+    }
+
+    // Return the relative path of the final destination
+    const finalRelPath = path.relative(WORKSPACE_ROOT, finalDest).split(path.sep).join('/');
+    res.json({ success: true, newPath: finalRelPath });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+function copyDirRecursive(src, dest) {
+  fs.mkdirSync(dest, { recursive: true });
+  const entries = fs.readdirSync(src, { withFileTypes: true });
+  for (const entry of entries) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+    if (entry.isDirectory()) {
+      copyDirRecursive(srcPath, destPath);
+    } else {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+}
+
 // ─── Seed workspace with sample DSA files ───────────────────────
 export function seedWorkspace() {
   if (fs.existsSync(path.join(WORKSPACE_ROOT, 'DSA'))) {

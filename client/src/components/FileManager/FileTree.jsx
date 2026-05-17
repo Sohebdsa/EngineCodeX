@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import useFileStore from '../../stores/useFileStore';
 import useEditorStore from '../../stores/useEditorStore';
 import useToastStore from '../../stores/useToastStore';
@@ -12,7 +12,11 @@ export default function FileTree() {
   const setSelectedPath = useFileStore((s) => s.setSelectedPath);
   const expandedFolders = useFileStore((s) => s.expandedFolders);
   const toggleFolder = useFileStore((s) => s.toggleFolder);
+  const clipboard = useFileStore((s) => s.clipboard);
+  const setClipboard = useFileStore((s) => s.setClipboard);
+  const pasteNode = useFileStore((s) => s.pasteNode);
   const [creatingAt, setCreatingAt] = useState(null); // { parentPath, type }
+  const addToast = useToastStore((s) => s.addToast);
 
   // Find a node in the tree by path
   const findNode = (nodes, targetPath) => {
@@ -55,12 +59,58 @@ export default function FileTree() {
     setCreatingAt({ parentPath, type: 'directory' });
   };
 
+  // Keyboard shortcuts for cut/copy/paste
+  const handleKeyDown = useCallback((e) => {
+    // Only handle when focus is within the file tree area
+    const isCtrl = e.ctrlKey || e.metaKey;
+    if (!isCtrl || !selectedPath) return;
+
+    const node = findNode(tree, selectedPath);
+    if (!node) return;
+
+    if (e.key === 'x') {
+      e.preventDefault();
+      setClipboard(node.path, node.name, 'cut');
+      addToast(`Cut "${node.name}"`, 'info');
+    } else if (e.key === 'c') {
+      e.preventDefault();
+      setClipboard(node.path, node.name, 'copy');
+      addToast(`Copied "${node.name}"`, 'info');
+    } else if (e.key === 'v' && clipboard) {
+      e.preventDefault();
+      // Determine target folder
+      let destFolder = '';
+      if (node.type === 'directory') {
+        destFolder = node.path;
+      } else {
+        const parts = node.path.split('/');
+        parts.pop();
+        destFolder = parts.join('/');
+      }
+      handlePaste(destFolder);
+    }
+  }, [selectedPath, tree, clipboard]);
+
+  const handlePaste = async (destFolder) => {
+    const result = await pasteNode(destFolder);
+    if (result.success) {
+      addToast(`Pasted to "${destFolder || 'root'}"`, 'success');
+    } else {
+      addToast(`Paste failed: ${result.error}`, 'error');
+    }
+  };
+
   useEffect(() => {
     fetchTree();
   }, []);
 
   return (
-    <div className="flex flex-col h-full">
+    <div
+      className="flex flex-col h-full"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      style={{ outline: 'none' }}
+    >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-border shrink-0">
         <span className="text-[11px] font-semibold uppercase tracking-widest text-text-muted">
@@ -144,6 +194,9 @@ function FileNode({ node, depth, creatingAt, setCreatingAt, setSelectedPath, sel
   const expandedFolders = useFileStore((s) => s.expandedFolders);
   const deleteNode = useFileStore((s) => s.deleteNode);
   const renameNode = useFileStore((s) => s.renameNode);
+  const clipboard = useFileStore((s) => s.clipboard);
+  const setClipboard = useFileStore((s) => s.setClipboard);
+  const pasteNode = useFileStore((s) => s.pasteNode);
   const openFile = useEditorStore((s) => s.openFile);
   const activeTab = useEditorStore((s) => s.activeTab);
   const removeTabByPath = useEditorStore((s) => s.removeTabByPath);
@@ -157,6 +210,7 @@ function FileNode({ node, depth, creatingAt, setCreatingAt, setSelectedPath, sel
   const isExpanded = expandedFolders.includes(node.path);
   const isActive = activeTab === node.path;
   const isDir = node.type === 'directory';
+  const isCut = clipboard?.operation === 'cut' && clipboard?.path === node.path;
 
   const handleClick = () => {
     setSelectedPath(node.path);
@@ -203,12 +257,46 @@ function FileNode({ node, depth, creatingAt, setCreatingAt, setSelectedPath, sel
     }
   };
 
+  const handleCut = () => {
+    setContextMenu(null);
+    setClipboard(node.path, node.name, 'cut');
+    addToast(`Cut "${node.name}"`, 'info');
+  };
+
+  const handleCopy = () => {
+    setContextMenu(null);
+    setClipboard(node.path, node.name, 'copy');
+    addToast(`Copied "${node.name}"`, 'info');
+  };
+
+  const handlePaste = async () => {
+    setContextMenu(null);
+    // Determine destination folder
+    let destFolder = '';
+    if (isDir) {
+      destFolder = node.path;
+    } else {
+      const parts = node.path.split('/');
+      parts.pop();
+      destFolder = parts.join('/');
+    }
+    const result = await pasteNode(destFolder);
+    if (result.success) {
+      addToast(`Pasted to "${destFolder || 'root'}"`, 'success');
+    } else {
+      addToast(`Paste failed: ${result.error}`, 'error');
+    }
+  };
+
   return (
     <>
       <div
         className={`flex items-center gap-1 px-2 py-[3px] cursor-pointer group transition-colors
           ${isActive ? 'bg-accent/10 text-accent' : selectedPath === node.path ? 'bg-surface-2 text-text' : 'hover:bg-surface-2 text-text'}`}
-        style={{ paddingLeft: `${depth * 16 + 8}px` }}
+        style={{
+          paddingLeft: `${depth * 16 + 8}px`,
+          opacity: isCut ? 0.45 : 1,
+        }}
         onClick={handleClick}
         onContextMenu={handleContextMenu}
       >
@@ -255,9 +343,13 @@ function FileNode({ node, depth, creatingAt, setCreatingAt, setSelectedPath, sel
           x={contextMenu.x}
           y={contextMenu.y}
           isDir={isDir}
+          hasClipboard={!!clipboard}
           onClose={() => setContextMenu(null)}
           onRename={handleRename}
           onDelete={handleDelete}
+          onCut={handleCut}
+          onCopy={handleCopy}
+          onPaste={handlePaste}
           onNewFile={() => {
             setContextMenu(null);
             if (isDir) {
@@ -352,7 +444,7 @@ function InlineCreate({ parentPath, type, onDone, depth }) {
   );
 }
 
-function ContextMenu({ x, y, isDir, onClose, onRename, onDelete, onNewFile, onNewFolder }) {
+function ContextMenu({ x, y, isDir, hasClipboard, onClose, onRename, onDelete, onNewFile, onNewFolder, onCut, onCopy, onPaste }) {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -387,6 +479,41 @@ function ContextMenu({ x, y, isDir, onClose, onRename, onDelete, onNewFile, onNe
           <div className="context-menu-separator" />
         </>
       )}
+
+      {/* Cut / Copy / Paste */}
+      <div className="context-menu-item" onClick={onCut}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="6" cy="6" r="3" />
+          <circle cx="6" cy="18" r="3" />
+          <line x1="20" y1="4" x2="8.12" y2="15.88" />
+          <line x1="14.47" y1="14.48" x2="20" y2="20" />
+          <line x1="8.12" y1="8.12" x2="12" y2="12" />
+        </svg>
+        Cut
+        <span className="context-menu-shortcut">Ctrl+X</span>
+      </div>
+      <div className="context-menu-item" onClick={onCopy}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+        </svg>
+        Copy
+        <span className="context-menu-shortcut">Ctrl+C</span>
+      </div>
+      <div
+        className={`context-menu-item ${!hasClipboard ? 'disabled' : ''}`}
+        onClick={hasClipboard ? onPaste : undefined}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
+          <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+        </svg>
+        Paste
+        <span className="context-menu-shortcut">Ctrl+V</span>
+      </div>
+
+      <div className="context-menu-separator" />
+
       <div className="context-menu-item" onClick={onRename}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
