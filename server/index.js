@@ -31,6 +31,7 @@ const PORT = 3001;
 const allowedOrigins = [
   'http://enginecodex.s3-website.ap-south-1.amazonaws.com',
   'http://localhost:5173',   // local dev
+  'http://localhost:4173',   // vite preview
   'http://localhost:3000',   // local dev alt
 ];
 

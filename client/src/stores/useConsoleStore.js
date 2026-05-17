@@ -130,8 +130,14 @@ const useConsoleStore = create((set, get) => ({
       } else if (data.type === 'clear') {
         set({ output: '', error: '' });
       } else if (data.type === 'done') {
+        clearTimeout(timeout);
+        worker.terminate();
+        URL.revokeObjectURL(workerUrl);
         set((s) => ({
           executionTime: data.executionTime,
+          isRunning: false,
+          activeWorker: null,
+          workerTimeout: null,
           history: [
             ...s.history,
             {
@@ -142,7 +148,6 @@ const useConsoleStore = create((set, get) => ({
             },
           ],
         }));
-        set({ isRunning: false });
       }
     };
 
