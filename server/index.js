@@ -30,7 +30,7 @@ const PORT = 3001;
 // ── CORS Configuration ──
 const allowedOrigins = [
   'http://enginecodex.s3-website.ap-south-1.amazonaws.com',
-  'http://65.2.124.4',       // EC2 Nginx
+  'http://13.232.83.109',    // EC2 Nginx
   'http://localhost:5173',   // local dev
   'http://localhost:4173',   // vite preview
   'http://localhost:3000',   // local dev alt
