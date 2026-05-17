@@ -1,4 +1,4 @@
-name: EngineCodeX Deploy
+name: Deploy Fullstack App on EC2
 
 on:
   push:
@@ -7,43 +7,67 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
+
+    strategy:
+      matrix:
+        node-version: [22.x]
+
     steps:
-      # Step 1: Checkout repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Set up Node.js
-      - name: Set up Node.js
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: |
+            server/package-lock.json
+            client/package-lock.json
 
-      # Step 3: Install server dependencies
-      - name: Install server dependencies
-        run: npm install --prefix server
+      # ------------------------------
+      # BACKEND SETUP
+      # ------------------------------
+      - name: Install backend dependencies
+        working-directory: ./server
+        run: npm install
 
-      # Step 4: Install client dependencies
-      - name: Install client dependencies
-        run: npm install --prefix client
+      - name: Create backend .env file
+        working-directory: ./server
+        run: |
+          touch .env
+          echo "${{ secrets.PROD_BACKEND_ENV }}" > .env
 
-      # Step 5: Build client
-      - name: Build client
-        run: npm run build --prefix client
+      - name: Start backend with PM2
+        working-directory: ./server
+        run: |
+          /home/ubuntu/.nvm/versions/node/v22.16.0/bin/pm2 restart backend || /home/ubuntu/.nvm/versions/node/v22.16.0/bin/pm2 start index.js --name backend
 
-      # Step 6: Configure AWS credentials
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-south-1   # change if your bucket is in another region
+      # ------------------------------
+      # FRONTEND SETUP
+      # ------------------------------
+      - name: Clean npm cache & remove existing dependencies
+        working-directory: ./client
+        run: |
+          rm -rf node_modules package-lock.json
+          npm cache clean --force
 
-      # Step 7: Deploy client build to S3
-      - name: Deploy to S3
-        run: aws s3 sync client/dist s3://enginecodex --delete
+      - name: Install frontend dependencies
+        working-directory: ./client
+        run: npm install
 
-      # Step 8: Start server (optional for CI/CD)
-      # If you want to run the server as part of the workflow (for testing),
-      # uncomment this step. For production, you'd usually deploy server separately.
+      - name: Create frontend .env file
+        working-directory: ./client
+        run: |
+          touch .env
+          echo "${{ secrets.PROD_FRONTEND_ENV }}" > .env
 
+      - name: Build frontend
+        working-directory: ./client
+        run: npm run build
+
+      - name: Deploy frontend to Nginx
+        run: |
+          sudo rm -rf /var/www/html/*
+          sudo cp -r ./client/dist/* /var/www/html/
