@@ -67,6 +67,6 @@ app.get('/api/health', (req, res) => {
 seedWorkspace();
 
 app.listen(PORT,'0.0.0.0' ,() => {
-  console.log(`\n  🚀 DSA Playground Server running on http://3.110.212.186:${PORT}`);
+  console.log(`\n  🚀 DSA Playground Server running on http://65.2.124.4:${PORT}`);
   console.log(`  🤖 Gemini AI: ${process.env.GEMINI_API_KEY ? 'Configured ✅' : 'Not configured ⚠️  (add GEMINI_API_KEY to server/.env)'}\n`);
 });
