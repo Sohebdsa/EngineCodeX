@@ -1,4 +1,4 @@
-name: Deploy Fullstack App on AWS EC2
+name: Deploy Fullstack App on AWS EC2 ...
 
 on:
   push:
