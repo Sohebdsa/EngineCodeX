@@ -4,7 +4,6 @@
 **/.pnp
 .pnp.js
 yarn.lock
-package-lock.json
 
 # Production builds
 /dist

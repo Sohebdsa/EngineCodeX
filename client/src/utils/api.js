@@ -1,7 +1,6 @@
 const BASE_URL = 'http://65.2.124.4:3001';
 
 
-
 async function request(method, url, body) {
   const options = {
     method,
