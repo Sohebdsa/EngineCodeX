@@ -39,9 +39,10 @@ app.use(cors({
   origin: (origin, callback) => {
     // allow requests with no origin (curl, Postman, server-to-server)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
+    // allow listed origins
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    // allow all Vercel preview/production deployments
+    if (origin.endsWith('.vercel.app')) return callback(null, true);
     return callback(new Error(`CORS blocked for origin: ${origin}`));
   },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
