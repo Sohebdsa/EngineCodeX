@@ -1,6 +1,4 @@
-// In production (when served by Nginx), we use relative paths.
-// In local dev, we point to the local server.
-const BASE_URL = import.meta.env.VITE_API_URL || '';
+const BASE_URL = 'http://172.31.39.132:3001';
 
 
 async function request(method, url, body) {
