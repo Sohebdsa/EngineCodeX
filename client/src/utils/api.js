@@ -1,4 +1,5 @@
-const BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
+// In production, use a relative path ('') so Nginx handles the proxy routing to port 3001.
+const BASE_URL = import.meta.env.PROD ? '' : 'http://localhost:3001';
 
 
 async function request(method, url, body) {
