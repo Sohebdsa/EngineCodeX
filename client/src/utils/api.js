@@ -1,4 +1,4 @@
-const BASE_URL = 'http://65.2.124.4:3001';
+const BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
 
 
 async function request(method, url, body) {
