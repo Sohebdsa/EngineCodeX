@@ -25,18 +25,23 @@ jobs:
       # ------------------------------
       # BACKEND SETUP
       # ------------------------------
+      - name: Deploy backend code to EC2 path
+        run: |
+          mkdir -p /home/ubuntu/EngineCodeX/server
+          # Copy server files but don't overwrite the workspace directory if it exists
+          rsync -a --exclude 'workspace' ./server/ /home/ubuntu/EngineCodeX/server/
+          
       - name: Install backend dependencies
-        working-directory: ./server
+        working-directory: /home/ubuntu/EngineCodeX/server
         run: npm install
 
       - name: Create backend .env file
-        working-directory: ./server
+        working-directory: /home/ubuntu/EngineCodeX/server
         run: |
-          touch .env
           echo "${{ secrets.PROD_BACKEND_ENV }}" > .env
 
       - name: Start backend with PM2
-        working-directory: ./server
+        working-directory: /home/ubuntu/EngineCodeX/server
         run: |
           npx pm2 restart backend || npx pm2 start index.js --name backend
 

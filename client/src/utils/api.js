@@ -1,4 +1,4 @@
-const BASE_URL = 'http://172.31.39.132:3001';
+const BASE_URL = 'http://65.2.124.4:3001';
 
 
 async function request(method, url, body) {
