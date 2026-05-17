@@ -8,7 +8,5 @@ const savedTheme = localStorage.getItem('dsa-playground-theme') || 'dark';
 document.documentElement.setAttribute('data-theme', savedTheme);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+  <App />
 );
