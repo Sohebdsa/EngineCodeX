@@ -1,4 +1,4 @@
-# EngineCodeX
+#  EngineCodeX
 node 
 EngineCodeX is a modern, web-based code editor and DSA playground with integrated AI assistance. Built with React, Vite, Monaco Editor, Node.js/Express backend, and Google Gemini AI integration.
 
